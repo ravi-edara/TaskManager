@@ -1,0 +1,177 @@
+﻿@using TaskManager.Helper
+<div id="taskMain" ng-app="task_AppMain" ng-controller="taskController">
+    {{init('@HttpContext.Current.Session[ConstantHelper.UserSessionKey]')}}
+    <div class="jumbotron">
+        <p>Title: {{movieModel.Title}}</p>
+        <p>Year: {{movieModel.Year}}</p>
+        <p>ImdbID: {{movieModel.imdbID}}</p>
+    </div>
+    <form name="TaskForm">
+        @*Task Add / Edit HTML Code + *@
+        <div class="panel panel-default panel-tasks">
+            <div class="panel-body">
+                <div id="dvMessage"></div>
+                <div class="row spaced">
+
+                    <div class="col-xs-12" id="btnAddNewtask" name="btnAddNewtask" ng-if="saveMode == 'L'">
+                        <a href="#" class="line_button green pull-right" ng-click="addNewtask()">
+                            <span> Add Task</span>
+                        </a>
+                    </div>
+
+                    <div ng-if="saveMode != 'L'">
+                        <div class="row">
+                            <div class="col-lg-6 col-xs-12">
+                                <div class="form-group" id="dv_Name" style="margin-bottom: 50px !important">
+                                    <label class="col-sm-2 col-lg-3 control-label"><span class="error">* </span>Task Title</label>
+                                    <div class="col-sm-10 col-lg-9">
+                                        <input id="Title" name="Title" type="text" class="form-control"
+                                               ng-model="taskModel.Title"
+                                               required
+                                               ng-maxlength="50" ng-minlength="5" />
+                                        <div class="error-messages" ng-if="TaskForm.Title.$touched && TaskForm.Title.$invalid" ng-messages="TaskForm.Title.$error">
+                                            <div ng-message="required" class="message-error">Task title is required</div>
+                                            <div ng-message="minlength" class="message-error"> Title Length Is Too Short </div>
+                                            <div ng-message="maxlength" class="message-error"> Title Length Is Too Long </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="dv_State" style="margin-bottom: 50px !important">
+                                    <label class="col-sm-2 col-lg-3 control-label"><span class="error">* </span>State</label>
+                                    <div class="col-sm-10 col-lg-9">
+                                        <select id="TaskState" name="TaskState" class="form-control"
+                                                ng-model="taskModel.TaskState"
+                                                required style="text-align: left">
+                                            <option value="0">Active</option>
+                                            <option value="1">Completed</option>
+                                            <option value="2">Archived</option>
+                                        </select>
+
+                                        <div class="error-messages" ng-if="TaskForm.TaskState.$touched  && TaskForm.TaskState.$invalid" ng-messages="TaskForm.TaskState.$error">
+                                            <div ng-message="required" class="message-error">State is Required</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br /><br /><br />
+
+                                <div class="form-group" id="dv_CreatedDate" style="margin-bottom: 50px !important">
+                                    <label class="col-sm-2 col-lg-3 control-label"><span class="error">* </span>Created Date</label>
+                                    <div class="col-sm-10 col-lg-9">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="CreatedDate" name="CreatedDate" ng-model="taskModel.CreatedDate"
+                                                   is-open="openedCalendarCreatedDate.opened" datepicker-popup="{{dateFormatInHtml}}"
+                                                   max-date="maxDate" date-disabled="disabled(date, mode)"
+                                                   readonly="readonly" required />
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" ng-click="openCalendarCreatedDate($event)">
+                                                    <i class="glyphicon glyphicon-calendar"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                        <div class="error-messages" ng-if="TaskForm.CreatedDate.$touched && TaskForm.CreatedDate.$invalid" ng-messages="TaskForm.CreatedDate.$error">
+                                            <div ng-message="required" class="message-error">Created Date is required</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-xs-12">
+                                <div class="form-group" id="dv_ModifiedDate" style="margin-bottom: 50px !important">
+                                    <label class="col-sm-2 col-lg-3 control-label"><span class="error">* </span>Modified Date</label>
+                                    <div class="col-sm-10 col-lg-9">
+                                        <div class="input-group">
+                                            <input type="text" id="ModifiedDate" name="ModifiedDate" class="form-control" ng-model="taskModel.ModifiedDate"
+                                                   is-open="openedCalendarModifiedDate.opened" datepicker-popup="{{dateFormatInHtml}}"
+                                                   readonly="readonly" required />
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" ng-click="openCalendarModifiedDate($event)">
+                                                    <i class="glyphicon glyphicon-calendar"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                        <div class="error-messages" ng-if="TaskForm.ModifiedDate.$touched && TaskForm.ModifiedDate.$invalid" ng-messages="TaskForm.ModifiedDate.$error">
+                                            <div ng-message="required" class="message-error">Modified Date is required</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="dv_Description">
+                                    <label class="col-sm-2 col-lg-3 control-label">Description</label>
+                                    <div class="col-sm-10 col-lg-9">
+                                        <textarea class="form-control" id="Description" name="Description" ng-model="taskModel.Description" ng-maxlength="100" rows="5"></textarea>
+                                        <div class="error-messages" ng-if="TaskForm.Description.$touched && TaskForm.Description.$invalid" ng-messages="TaskForm.Description.$error">
+                                            <div ng-message="maxlength" class="message-error"> Description Length Is Too Long </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div style="text-align: right">
+                                    <a href="#" class="btn btn-info" id="btnSave" ng-disabled="TaskForm.$invalid" ng-click="saveTask()">
+                                        Save
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*Task Add / Edit HTML Code + *@
+
+        @*Task List HTML Code + *@
+        <div class="panel panel-default panel-tasks" ng-if="saveMode == 'L'">
+            <div class="panel-heading">
+                <h1 class="panel-title" id="panelTitle">Task List</h1>
+            </div>
+            <div class="panel-body">
+                <div class="row spaced">
+                    <div class="col-xs-12">
+                        <div class="col-sm-4 search-field">
+                            <input type="text" id="search" ng-model="filterBy" ng-change="onTaskNameSearch(filterBy)" placeholder="Search ...">
+                        </div>
+                        <br /><br /><br />
+                    </div>
+                    <div class="col-xs-12">
+                        <div ng-show="gridHelper.gridOptions.itemsSet.length <= 0"> No Items To Display </div>
+                        <div class="spaced" ng-show="gridHelper.gridOptions.itemsSet.length > 0">
+                            <table id="gridSet" class="table table-striped table-hover" selection-mode="SingleRow" tr-ng-grid="" items='gridHelper.gridOptions.itemsSet'
+                                   enable-filtering="false" page-items="gridHelper.gridOptions.pageItems" total-items="gridHelper.gridOptions.totalItems"
+                                   order-by="gridHelper.gridOptions.orderBy" enable-sorting="false" filter-by="gridHelper.gridOptions.filterBy"
+                                   current-page="gridHelper.gridOptions.currentPage"
+                                   on-data-required="onTaskListRequested(currentPage, pageItems, filterBy, filterByFields, orderBy, orderByReverse)">
+                                <thead>
+                                    <tr>
+                                        <th field-name="Title" display-name=""></th>
+                                        <th field-name="Description" display-name="Task Number"></th>
+                                        <th field-name="CreatedDate" display-name="Created Date"></th>
+                                        <th field-name="ModifiedDate" display-name="Modified Start Date"></th>
+                                        <th field-name="TaskStateValue" display-name="Task State"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="task-icon-holder">
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-default" ng-click="editTask(gridItem.Id)" data-toggle="tooltip" data-placement="top" id="Edit" title="Edit">Edit</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-show="!istaskSetLoaded" class="loading"></div>
+        </div>
+        @*Task List HTML Code - *@
+    </form>
+</div>

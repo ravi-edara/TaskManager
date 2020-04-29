@@ -1,0 +1,44 @@
+﻿@model TaskManager.Models.LoginViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+    ViewBag.Title = "Sir Robert Login";
+}
+
+<div class="row vertical-center-row">
+    <div class="col-sm-6 col-md-4 col-xs-12 col-md-offset-4 col-sm-offset-3 login-container">
+        <div class="login-logo">
+            <img src="~/Images/logo.gif" alt="Sir Robert McAlpine" />
+        </div>
+        <br />
+        <div class="alert alert-info" role="alert">Please sign in</div>
+        <div class="login-form">
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { role = "form" }))
+            {
+
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-user"></i>
+                        </span>
+                        @Html.TextBoxFor(m => m.UserName, new { @id = "userName", autocomplete = "off", @class = "form-control", @placeholder = "Username", @autofocus = "autofocus" })
+                    </div>
+                    @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-lock"></i>
+                        </span>
+                        @Html.PasswordFor(m => m.Password, new { id = "password", autocomplete = "off", @class = "form-control", @placeholder = "Password" })
+                    </div>
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                </div>
+                <input type="submit" id="signIn" value="Log in" class="btn btn-primary" />
+
+            }
+        </div>
+    </div>
+</div>
